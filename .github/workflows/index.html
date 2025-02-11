@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepSeek智能助手</title>
+</head>
+<body>
+    <h1>DeepSeek智能助手</h1>
+    <div id="chat-container">
+        <div id="messages"></div>
+        <input type="text" id="user-input" placeholder="输入你的问题">
+        <button onclick="sendMessage()">发送</button>
+    </div>
+
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+    <script>
+        // 初始化企业微信JS-SDK
+        wx.config({
+            beta: true, // 必须开启
+            debug: false, // 调试模式
+            appId: 'YOUR_CORP_ID', // 企业ID
+            timestamp: Math.floor(Date.now() / 1000), // 时间戳
+            nonceStr: '随机字符串', // 随机字符串
+            signature: '签名', // 签名（需后端生成）
+            jsApiList: [] // 需要使用的JS接口
+        });
+
+        // 发送消息到DeepSeek
+        function sendMessage() {
+            const userInput = document.getElementById('user-input').value;
+            if (!userInput) return;
+
+            // 调用DeepSeek API
+            fetch('https://api.deepseek.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer YOUR_DEEPSEEK_API_KEY'
+                },
+                body: JSON.stringify({
+                    messages: [{ role: 'user', content: userInput }]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const responseText = data.choices[0].message.content;
+                // 显示消息
+                const messagesDiv = document.getElementById('messages');
+                messagesDiv.innerHTML += `<p><strong>你：</strong>${userInput}</p>`;
+                messagesDiv.innerHTML += `<p><strong>DeepSeek：</strong>${responseText}</p>`;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
